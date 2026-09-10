@@ -1,91 +1,133 @@
 # Atlas Lab
 
-An interactive urban observatory for exploring the trade-offs between mobility, sustainability, cost and everyday city life.
+An interactive urban observatory for exploring how mobility, sustainability, cost, green space and digital infrastructure vary across a small set of city scenarios.
 
-![Desktop](docs/screenshots/desktop.png)
+![Atlas Lab explorer](docs/screenshots/desktop.png)
 
-![Comparison](docs/screenshots/comparison.png)
+Atlas Lab is a frontend data-visualization project rather than a statistical ranking product. Its 20 city records are deliberately authored **illustrative scenarios**: the interface is designed to explore relationships and trade-offs, not to present the values as official city statistics.
 
-![City Profile](docs/screenshots/city-profile.png)
+## Explore the dataset
+
+The main explorer combines several views over the same local dataset:
+
+- search by city or country;
+- filter by region and minimum sustainability value;
+- sort the city list by an indicator;
+- inspect cities on a keyboard-interactive schematic map;
+- switch scatterplot dimensions;
+- open a city profile;
+- export the current filtered rows as CSV;
+- compare up to three cities side by side.
+
+Filters update the map, cards, summary values and export together, so each view represents the same current subset.
 
 ![Scatterplot](docs/screenshots/scatterplot.png)
 
-![Mobile](docs/screenshots/mobile.png)
+## Indicators
 
-## Key features
+Each city contains six comparable fields:
 
-- Twenty locally defined city scenarios, five regions and six indicators.
-- Search, region and sustainability filters update the map, cards, metrics and CSV export.
-- Keyboard-interactive schematic map, scatterplot, city profiles and metric sorting.
-- Comparison of up to three cities with radar plot and accessible data table.
-- Field notes open comparisons; methodology explains units, averages and scenario assumptions.
-- No API keys, external data requests or backend required.
+| Indicator | Meaning in Atlas Lab |
+| --- | --- |
+| Sustainability | Scenario index for resource use, energy and environmental planning; higher is better. |
+| Urban mobility | Scenario index for transit, walking and cycling access; higher is better. |
+| Cost of living | Relative cost index with the New York scenario set to 100; higher means more expensive. |
+| Green space | Illustrative percentage of urban land allocated to public green space. |
+| Digital infrastructure | Scenario index for connectivity and digital public services; higher is better. |
+| Population | Illustrative urban-area population in millions; city boundaries are not standardised. |
 
-## Technology
+The project deliberately does **not** calculate a composite city score. Indicators have different meanings and directions, and reducing them to a single rank would imply a methodology the dataset does not support.
 
-React 19, Vite, native SVG charts, JavaScript, CSS, ESLint, Prettier and Playwright.
+See [METHODOLOGY.md](METHODOLOGY.md) for interpretation rules and [DATA.md](DATA.md) for the record schema and transformations.
 
-## Local development
+## Comparing cities
+
+The comparison workspace accepts up to three cities and renders the selected indicators as a radar plot together with a data table.
+
+![City comparison](docs/screenshots/comparison.png)
+
+The radar visualization is intended as a shape comparison, not as an overall score. Population is not part of the radar scale; the indexed indicators and green-space percentage are already expressed on 0–100-like ranges, while population has a different unit and magnitude.
+
+The accompanying table is the precise representation of the values and remains available without relying on the chart geometry.
+
+## City profiles and field notes
+
+City cards and map markers open profiles with the local description and indicator values. Field notes provide editorial entry points into particular comparisons without changing the underlying dataset.
+
+![City profile](docs/screenshots/city-profile.png)
+
+The map itself is schematic. Coordinates locate city centres for the projection, but the rendered land geometry is an interface device rather than a geographic reference map.
+
+## Visualization implementation
+
+Atlas Lab uses React 19, Vite and native SVG rather than a charting framework. `src/Charts.jsx` owns the map, scatterplot and radar rendering; `src/data.js` owns the city records, indicator metadata, filtering, means and CSV serialization; the application layer coordinates filters, profiles, comparison and notes.
+
+Keeping the visualizations local makes their scales, interaction states and accessible alternatives explicit in the project code.
+
+## Accessibility
+
+Data visualization introduces interaction requirements beyond ordinary cards and forms. Atlas Lab therefore provides keyboard-operable map/chart controls, visible focus states, semantic form controls and text/table alternatives where exact chart values matter.
+
+The responsive interface has been exercised at 360, 768, 1440 and 2560 pixel widths, and the browser suite includes automated axe checks. Automated scanning is useful regression coverage, not a claim of complete accessibility conformance.
+
+Implementation notes are collected in [ACCESSIBILITY.md](ACCESSIBILITY.md).
+
+## Run locally
 
 Requires Node.js 24 and npm.
 
-~~~bash
+```bash
 npm ci
 npm run dev
-~~~
+```
 
-Open the local URL printed by Vite. There are no demo accounts or runtime secrets for this frontend-only project.
+There is no backend, API key, account or runtime data service. All scenario data ships with the frontend.
 
-## Configuration
+Production build:
 
-See .env.example. BASE_PATH is passed as an environment variable to Vite. Local builds default to ./ so assets remain relative. Repository Pages builds use /prfio-atlas-lab/.
-
-~~~bash
+```bash
 npm run lint
 npm run build
 npm run preview
-~~~
+```
 
-## Testing
+`BASE_PATH` can override the Vite base path. Local builds default to relative assets; the repository workflow supplies the GitHub Pages repository path when publishing.
 
-~~~bash
+## Tests
+
+```bash
 npx playwright install chromium
 npm test
-~~~
+```
 
-Playwright starts a server on port 5196 and checks interactions, validation responsive layouts and automated axe accessibility checks. Captures go to docs/screenshots. See [QA.md](QA.md) for execution evidence. CI runs the suite before publishing.
+The Playwright suite covers dataset bounds, combined filters, empty/reset states, profiles, the three-city comparison limit, comparison table values, field-note navigation, CSV export, scatterplot switching, responsive layouts, keyboard interaction and automated accessibility checks.
 
-## Deployment
+GitHub Actions runs validation before the Pages build. Screenshots in `docs/screenshots` are captures from the running application rather than static mockups.
 
-The included GitHub Actions workflow validates, builds with the repository base path, uploads dist and deploys through GitHub Pages. Set **Settings → Pages → Source → GitHub Actions**, then push main or run the workflow manually. No live URL is claimed until publication succeeds.
+## Project structure
 
-~~~bash
-gh auth login
-gh repo create prfio-atlas-lab --public --source=. --remote=origin --push
-gh api --method POST repos/{owner}/prfio-atlas-lab/pages -f build_type=workflow
-gh workflow run pages.yml
-~~~
+```text
+src/
+  data.js             Scenario records, indicators and data transforms
+  Charts.jsx          Native SVG map, scatterplot and radar
+  main.jsx            Explorer, profiles, comparison and notes
+  styles.css          Application visual system
+public/               Local interface assets
+tests/                Browser and interaction coverage
+docs/screenshots/     Captures from the running application
+.github/workflows/    Validation and Pages publishing
+```
 
-Replace {owner} with your GitHub login. If a remote exists, inspect it first; never force-push unrelated history. Description and topics are in .github/repository.json.
+## Data boundaries
 
-## Architecture and structure
+The values in this repository are illustrative and should not be quoted as factual measurements of the named cities. Population boundaries are not standardised, indices are scenario values, and the project does not establish causal relationships between indicators.
 
-~~~text
-src/                 Application logic, styles and local data
-public/              Local media, icons and credits page
-index.html           Entry document
-vite.config.js       Build and repository base configuration
-tests/               Browser and domain checks
-docs/screenshots/    Running application captures
-.github/workflows/   Validation and Pages deployment
-~~~
+The useful output of Atlas Lab is the **interaction and visualization model**: filtering a coherent dataset, inspecting dimensions, comparing records and exposing assumptions alongside the graphics.
 
-Product-specific modules own UI behaviour. Static media stays local. data.js owns records and transforms; Charts.jsx owns SVG visualizations; main.jsx coordinates explorer, comparison, notes and profile views.
+## Documentation
 
-## Scope and limits
+- [Methodology](METHODOLOGY.md) — how to interpret the indicators and comparisons.
+- [Data reference](DATA.md) — schema, ranges, filters, means and CSV export.
+- [Accessibility](ACCESSIBILITY.md) — keyboard interaction and non-visual chart alternatives.
 
-Indicator values are illustrative scenarios, not official statistics or a ranking. Population boundaries are not standardised. The interface documents these limits and calculates no composite score. Comparisons and filters reset on reload.
-
-## Design and credits
-
-[DESIGN.md](DESIGN.md) records the visual system. [CREDITS.md](CREDITS.md) records research, media and icon provenance. MIT-licensed source; dependencies retain their original licences.
+MIT licensed; dependencies retain their upstream licenses.
