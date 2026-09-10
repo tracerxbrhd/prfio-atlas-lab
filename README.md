@@ -111,7 +111,7 @@ src/
   data.js             Scenario records, indicators and data transforms
   Charts.jsx          Native SVG map, scatterplot and radar
   main.jsx            Explorer, profiles, comparison and notes
-  styles.css          Application visual system
+  style.css           Application visual system
 public/               Local interface assets
 tests/                Browser and interaction coverage
 docs/screenshots/     Captures from the running application
