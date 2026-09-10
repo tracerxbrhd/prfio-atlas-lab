@@ -130,4 +130,6 @@ The useful output of Atlas Lab is the **interaction and visualization model**: f
 - [Data reference](DATA.md) — schema, ranges, filters, means and CSV export.
 - [Accessibility](ACCESSIBILITY.md) — keyboard interaction and non-visual chart alternatives.
 
-MIT licensed; dependencies retain their upstream licenses.
+## License
+
+This repository is source-available for portfolio review and evaluation only. The original code and other original materials are **not open source** and may not be reused, redistributed, incorporated into other projects, or commercially exploited without prior written permission. See the [Portfolio Source License](LICENSE) for the complete terms. Third-party components remain subject to their respective licenses.
